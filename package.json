@@ -1,0 +1,23 @@
+{
+  "name": "wensday-kalendar",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "web": "npm run --prefix packages/web",
+    "mobile": "npm run --prefix packages/mobile",
+    "shared": "npm run --prefix packages/shared"
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^7.17.0",
+    "@typescript-eslint/parser": "^7.17.0",
+    "eslint": "^8.57.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-prettier": "^5.2.1",
+    "prettier": "^3.3.3"
+  },
+  "dependencies": {
+    "firebase": "^10.12.4"
+  }
+}
