@@ -36,7 +36,7 @@ export default function Dashboard() {
   }, [user]);
 
   if (!userProfile) {
-    return <div>Loading user profile...</div>;
+    return <div>Login or sign up to continue...</div>;
   }
 
   return (
