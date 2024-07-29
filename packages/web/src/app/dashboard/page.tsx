@@ -8,6 +8,7 @@ import HabitList from '@/components/features/habits/HabitList';
 import { Habit, getUserHabits } from '@/utils/firebase/firestore';
 import { User, UserProfile } from '@/utils/firebase/types';
 import { FlamePointProvider } from '@/contexts/FlamePointContext';
+import DailyHabitSummary from '@/components/features/habits/DailyHabitSummary';
 
 
 export default function Dashboard() {
@@ -47,6 +48,7 @@ export default function Dashboard() {
         <div>
           <h1>Dashboard</h1>
           <p>Welcome, {userProfile.email}</p>
+          <DailyHabitSummary />
           <HabitForm onHabitAdded={fetchHabits} />
           <HabitList habits={habits} onHabitDeleted={fetchHabits} />
         </div>
