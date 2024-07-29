@@ -2,6 +2,8 @@
 
 import { Habit, deleteHabit } from '@/utils/firebase/firestore';
 import { useAuth } from '@/contexts/AuthContext';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 export default function HabitList({ habits, onHabitDeleted }: { habits: Habit[], onHabitDeleted: () => void }) {
   const { user } = useAuth();
@@ -18,13 +20,17 @@ export default function HabitList({ habits, onHabitDeleted }: { habits: Habit[],
   };
 
   return (
-    <ul>
+    <div className="space-y-4">
       {habits.map((habit) => (
-        <li key={habit.id}>
-          {habit.name}
-          <button onClick={() => handleDelete(habit.id)}>Delete</button>
-        </li>
+        <Card key={habit.id}>
+          <CardHeader>
+            <CardTitle>{habit.name}</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Button variant="destructive" onClick={() => handleDelete(habit.id)}>Delete</Button>
+          </CardContent>
+        </Card>
       ))}
-    </ul>
+    </div>
   );
 }
