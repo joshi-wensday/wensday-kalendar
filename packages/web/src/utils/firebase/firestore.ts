@@ -9,75 +9,69 @@ import {
   doc, 
   getDocs,
   query,
-  where
+  where,
+  getDoc
 } from 'firebase/firestore';
+import { Habit, HabitAttribute, FlamePointRule } from '@shared/types/dataModels';
 
-export const addDocument = async (collectionName: string, data: any) => {
-  return await addDoc(collection(db, collectionName), data);
+export const addHabit = async (userId: string, habitData: Omit<Habit, 'id' | 'userId' | 'createdAt'>): Promise<Habit> => {
+  const newHabit: Omit<Habit, 'id'> = {
+    ...habitData,
+    userId,
+    createdAt: new Date(),
+    streakCount: 0,
+    attributes: habitData.attributes || [],
+    relatedSkills: habitData.relatedSkills || []
+  };
+  
+  const userHabitsRef = collection(db, 'users', userId, 'habits');
+  const docRef = await addDoc(userHabitsRef, newHabit);
+  return {
+    id: docRef.id,
+    ...newHabit
+  };
 };
 
-export const updateDocument = async (collectionName: string, id: string, data: any) => {
-  const docRef = doc(db, collectionName, id);
-  await updateDoc(docRef, data);
+export const getUserHabits = async (userId: string): Promise<Habit[]> => {
+  const userHabitsRef = collection(db, 'users', userId, 'habits');
+  const querySnapshot = await getDocs(userHabitsRef);
+  return querySnapshot.docs.map(doc => ({
+    id: doc.id,
+    ...doc.data()
+  } as Habit));
 };
 
-export const deleteDocument = async (collectionName: string, id: string) => {
-  const docRef = doc(db, collectionName, id);
-  await deleteDoc(docRef);
+export const updateHabit = async (userId: string, habitId: string, updatedData: Partial<Habit>): Promise<void> => {
+  const habitRef = doc(db, 'users', userId, 'habits', habitId);
+  await updateDoc(habitRef, updatedData);
 };
 
-export const getDocument = async (collectionName: string, id: string) => {
-  const docRef = doc(db, collectionName, id);
-  const docSnap = await getDoc(docRef);
-  return docSnap.exists() ? { id: docSnap.id, ...docSnap.data() } : null;
+export const deleteHabit = async (userId: string, habitId: string): Promise<void> => {
+  const habitRef = doc(db, 'users', userId, 'habits', habitId);
+  await deleteDoc(habitRef);
 };
 
-export const getDocuments = async (collectionName: string) => {
-  const querySnapshot = await getDocs(collection(db, collectionName));
-  return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+export const getCategories = async (userId: string): Promise<string[]> => {
+  const userHabitsRef = collection(db, 'users', userId, 'habits');
+  const querySnapshot = await getDocs(userHabitsRef);
+  const categories = new Set<string>();
+  querySnapshot.docs.forEach(doc => {
+    const habit = doc.data() as Habit;
+    categories.add(habit.category);
+  });
+  return Array.from(categories);
 };
 
-export const queryDocuments = async (collectionName: string, field: string, operator: any, value: any) => {
-  const q = query(collection(db, collectionName), where(field, operator, value));
+export const getSubcategories = async (userId: string, category: string): Promise<string[]> => {
+  const userHabitsRef = collection(db, 'users', userId, 'habits');
+  const q = query(userHabitsRef, where('category', '==', category));
   const querySnapshot = await getDocs(q);
-  return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  const subcategories = new Set<string>();
+  querySnapshot.docs.forEach(doc => {
+    const habit = doc.data() as Habit;
+    if (habit.subcategory) {
+      subcategories.add(habit.subcategory);
+    }
+  });
+  return Array.from(subcategories);
 };
-
-// more specific:
-export interface Habit {
-    id: string;
-    name: string;
-    createdAt: Date;
-  }
-  
-  export const addHabit = async (userId: string, habitName: string): Promise<Habit> => {
-    const habitData = {
-      name: habitName,
-      createdAt: new Date()
-    };
-    const userHabitsRef = collection(db, 'users', userId, 'habits');
-    const docRef = await addDoc(userHabitsRef, habitData);
-    return {
-      id: docRef.id,
-      ...habitData
-    };
-  };
-  
-  export const getUserHabits = async (userId: string): Promise<Habit[]> => {
-    const userHabitsRef = collection(db, 'users', userId, 'habits');
-    const querySnapshot = await getDocs(userHabitsRef);
-    return querySnapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data()
-    } as Habit));
-  };
-  
-  export const updateHabit = async (userId: string, habitId: string, newName: string): Promise<void> => {
-    const habitRef = doc(db, 'users', userId, 'habits', habitId);
-    await updateDoc(habitRef, { name: newName });
-  };
-  
-  export const deleteHabit = async (userId: string, habitId: string): Promise<void> => {
-    const habitRef = doc(db, 'users', userId, 'habits', habitId);
-    await deleteDoc(habitRef);
-  };

@@ -7,6 +7,8 @@ import HabitForm from '@/components/features/habits/HabitForm';
 import HabitList from '@/components/features/habits/HabitList';
 import { Habit, getUserHabits } from '@/utils/firebase/firestore';
 import { User, UserProfile } from '@/utils/firebase/types';
+import { FlamePointProvider } from '@/contexts/FlamePointContext';
+
 
 export default function Dashboard() {
   const [habits, setHabits] = useState<Habit[]>([]);
@@ -41,12 +43,14 @@ export default function Dashboard() {
 
   return (
     <ProtectedRoute>
-      <div>
-        <h1>Dashboard</h1>
-        <p>Welcome, {userProfile.email}</p>
-        <HabitForm onHabitAdded={fetchHabits} />
-        <HabitList habits={habits} onHabitDeleted={fetchHabits} />
-      </div>
+      <FlamePointProvider>
+        <div>
+          <h1>Dashboard</h1>
+          <p>Welcome, {userProfile.email}</p>
+          <HabitForm onHabitAdded={fetchHabits} />
+          <HabitList habits={habits} onHabitDeleted={fetchHabits} />
+        </div>
+      </FlamePointProvider>
     </ProtectedRoute>
   );
 }
